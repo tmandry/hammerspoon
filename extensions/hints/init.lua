@@ -10,9 +10,9 @@ local modal_hotkey = hotkey.modal
 --- hs.hints.hintChars
 --- Variable
 --- This controls the set of characters that will be used for window hints
---- Defaults to: {"A","O","E","U","I","D","H","T","N","S","P","G","M","W","V","J","K","X","B","Y","F"}
-hints.hintChars = {"A","O","E","U","I","D","H","T","N","S","P","G",
-                   "M","W","V","J","K","X","B","Y","F"}
+hints.hintChars = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z",
+                   "1","2","3","4","5","6","7","8","9","0",
+                   "-","=","[","]",";","'","\\",",",".","/","`"}
 
 local openHints = {}
 local takenPositions = {}
@@ -53,18 +53,37 @@ modalKey = hints.setupModal()
 
 function hints.windowHints()
   hints.closeHints()
+
+  local numHints = 0
+  for i,_ in ipairs(hints.hintChars) do
+      numHints = numHints + 1
+  end
+
   for i,win in ipairs(window.allWindows()) do
     local app = win:application()
     local fr = win:frame()
     local sfr = win:screen():frame()
-    if app and win:title() ~= "" then
+    if app and win:title() ~= "" and win:isStandard() then
       local c = {x = fr.x + (fr.w/2) - sfr.x, y = fr.y + (fr.h/2) - sfr.y}
       c = hints.bumpPos(c.x, c.y)
-      print(win:title().." x:"..c.x.." y:"..c.y)
-      local hint = hints.new(c.x,c.y,hints.hintChars[i],app:bundleID(),win:screen())
-      hintDict[hints.hintChars[i]] = win
-      table.insert(takenPositions, c)
-      table.insert(openHints, hint)
+      if c.y < 0 then
+          print("hs.hints: Skipping offscreen window: "..win:title())
+      else
+        --print(win:title().." x:"..c.x.." y:"..c.y) -- debugging
+        -- Check there are actually hint keys available
+        local numOpenHints = 0
+        for x,_ in ipairs(openHints) do
+            numOpenHints = numOpenHints + 1
+        end
+        if numOpenHints < numHints then
+          local hint = hints.new(c.x,c.y,hints.hintChars[numOpenHints+1],app:bundleID(),win:screen())
+          hintDict[hints.hintChars[numOpenHints+1]] = win
+          table.insert(takenPositions, c)
+          table.insert(openHints, hint)
+        else
+          print("hs.hints: Error: more windows than we have hint keys defined. See docs for hs.hints.hintChars")
+        end
+      end
     end
   end
   modalKey:enter()

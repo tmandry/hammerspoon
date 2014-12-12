@@ -7,7 +7,11 @@ local window = require "hs.window"
 local hotkey = require "hs.hotkey"
 local modal_hotkey = hotkey.modal
 
-local hintChars = {"A","O","E","U","I","D","H","T","N","S","P","G",
+--- hs.hints.hintChars
+--- Variable
+--- This controls the set of characters that will be used for window hints
+--- Defaults to: {"A","O","E","U","I","D","H","T","N","S","P","G","M","W","V","J","K","X","B","Y","F"}
+hints.hintChars = {"A","O","E","U","I","D","H","T","N","S","P","G",
                    "M","W","V","J","K","X","B","Y","F"}
 
 local openHints = {}
@@ -40,7 +44,7 @@ function hints.setupModal()
   k = modal_hotkey.new({"cmd", "shift"}, "V")
   k:bind({}, 'escape', function() hints.closeHints(); k:exit() end)
 
-  for i,c in ipairs(hintChars) do
+  for i,c in ipairs(hints.hintChars) do
     k:bind({}, c, hints.createHandler(c))
   end
   return k
@@ -52,11 +56,13 @@ function hints.windowHints()
   for i,win in ipairs(window.allWindows()) do
     local app = win:application()
     local fr = win:frame()
+    local sfr = win:screen():frame()
     if app and win:title() ~= "" then
-      local c = {x = fr.x + (fr.w/2), y = fr.y + (fr.h/2)}
+      local c = {x = fr.x + (fr.w/2) - sfr.x, y = fr.y + (fr.h/2) - sfr.y}
       c = hints.bumpPos(c.x, c.y)
-      local hint = hints.new(c.x,c.y,hintChars[i],app:bundleID(),win:screen())
-      hintDict[hintChars[i]] = win
+      print(win:title().." x:"..c.x.." y:"..c.y)
+      local hint = hints.new(c.x,c.y,hints.hintChars[i],app:bundleID(),win:screen())
+      hintDict[hints.hintChars[i]] = win
       table.insert(takenPositions, c)
       table.insert(openHints, hint)
     end

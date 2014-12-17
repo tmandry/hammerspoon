@@ -1,7 +1,8 @@
+--- === hs.hints ===
+---
+--- Switch focus with a transient per-application hotkey
+
 local hints = require "hs.hints.internal"
--- If you don't have a C or Objective-C submodule, the above line gets simpler:
--- local foobar = {}
--- Always return your top-level module; never set globals.
 local screen = require "hs.screen"
 local window = require "hs.window"
 local hotkey = require "hs.hotkey"
@@ -9,7 +10,8 @@ local modal_hotkey = hotkey.modal
 
 --- hs.hints.hintChars
 --- Variable
---- This controls the set of characters that will be used for window hints
+--- This controls the set of characters that will be used for window hints. They must be characters found in hs.keycodes.map
+--- The default is the letters A-Z, the numbers 0-9, and the punctuation characters: -=[];'\\,./\`
 hints.hintChars = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z",
                    "1","2","3","4","5","6","7","8","9","0",
                    "-","=","[","]",";","'","\\",",",".","/","`"}
@@ -51,6 +53,18 @@ function hints.setupModal()
 end
 modalKey = hints.setupModal()
 
+--- hs.hints.windowHints()
+--- Function
+--- Displays a keyboard hint for switching focus to each window
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * If there are more windows open than there are characters available in hs.hints.hintChars, not all windows will receive a hint, and an error will be logged to the Hammerspoon Console
 function hints.windowHints()
   hints.closeHints()
 

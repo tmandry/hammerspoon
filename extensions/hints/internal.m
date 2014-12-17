@@ -31,20 +31,17 @@ static NSFont *hintFont = nil;
 static float hintIconAlpha = -1.0;
 static NSRect iconFrame;
 static NSDictionary *hintTextAttributes;
-static bool createdCache = NO;
 
 + (void)initCache {
-    if(!createdCache) {
-        iconFrame = NSMakeRect(0, 0, hintHeight, hintHeight);
-        hintBackgroundColor = [NSColor colorWithWhite:0.0 alpha:0.65];
-        hintFontColor = [NSColor whiteColor];
-        hintFont = [NSFont systemFontOfSize:25.0];
-        hintIconAlpha = 0.95;
-        hintTextAttributes = [NSDictionary dictionaryWithObjectsAndKeys:hintFont,
-                              NSFontAttributeName,
-                              hintFontColor,
-                              NSForegroundColorAttributeName, nil];
-    }
+    iconFrame = NSMakeRect(0, 0, hintHeight, hintHeight);
+    hintBackgroundColor = [NSColor colorWithWhite:0.0 alpha:0.65];
+    hintFontColor = [NSColor whiteColor];
+    hintFont = [NSFont systemFontOfSize:25.0];
+    hintIconAlpha = 0.95;
+    hintTextAttributes = [NSDictionary dictionaryWithObjectsAndKeys:hintFont,
+                          NSFontAttributeName,
+                          hintFontColor,
+                          NSForegroundColorAttributeName, nil];
 }
 
 - (id)initWithFrame:(NSRect)frame {
@@ -122,7 +119,6 @@ static bool createdCache = NO;
                                 defer:NO
                                screen:screen];
     if (self) {
-        [self setReleasedWhenClosed:NO];
         [self setOpaque:NO];
         [self setBackgroundColor:[NSColor colorWithDeviceRed:0.0 green:0.0 blue:0.0 alpha:0.0]];
         [self makeKeyAndOrderFront:NSApp];
@@ -140,15 +136,10 @@ static bool createdCache = NO;
 }
 @end
 
-static int hint_gc(lua_State* L) {
-    HintWindow* hint = get_hint_arg(L, 1);
-    [hint close];
-    return 0;
-}
-
 static int hint_close(lua_State* L) {
     HintWindow* hint = get_hint_arg(L, 1);
     [hint close];
+    hint = nil;
     return 0;
 }
 
@@ -199,9 +190,6 @@ int luaopen_hs_hints_internal(lua_State* L) {
     if (luaL_newmetatable(L, "hs.hints.hint")) {
         lua_pushvalue(L, -2);
         lua_setfield(L, -2, "__index");
-
-        lua_pushcfunction(L, hint_gc);
-        lua_setfield(L, -2, "__gc");
 
         lua_pushcfunction(L, hint_eq);
         lua_setfield(L, -2, "__eq");

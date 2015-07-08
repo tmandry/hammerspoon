@@ -46,8 +46,8 @@ static bool is_window(AXUIElementRef element, NSString* role) {
   // other than kAXWindowRole (e.g. Emacs does not claim kAXWindowRole)
   // so we will do the simple test first, but then also attempt to duck-type
   // the object, to see if it has a property that any window should have
-  if([role isEqualToString: (NSString*)kAXWindowRole] ||
-     get_prop(element, NSAccessibilityMinimizedAttribute, nil)) {
+  if([role isEqualToString: (NSString*)kAXWindowRole]/* ||
+     get_prop(element, NSAccessibilityMinimizedAttribute, nil)*/) {
     return YES;
   } else {
     return NO;
